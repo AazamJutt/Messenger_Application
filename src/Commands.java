@@ -13,6 +13,7 @@
 public class Commands {
     static final String GRANTED = "8@dbd764djj@ef394";
     static final String CONNECTED = "sjhd@84jdj@h849292";
+    static final String DISCONNECT = "effbeb@4834y3344";
     static final String END_CHAT = "283@ejsweh7@673343";
-    static final String EXIT = "abwe@9298fnk@7484";
+    static final String EXIT = "abwe@9298fnk@7484";     
 }

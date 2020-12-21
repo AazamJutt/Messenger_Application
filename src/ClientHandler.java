@@ -33,7 +33,7 @@ public class ClientHandler extends javax.swing.JFrame {
         FREE
     }
     
-    //This Dictionary Stores the socket at which server is listening to that client
+    //This Dictionary (A Thread safe data Structure) Stores the socket at which server is listening to that client
     static Dictionary<String,Socket> clients = new Hashtable<>();
     
     //This Dictionary Stores the status of client by its name
@@ -196,29 +196,45 @@ public class ClientHandler extends javax.swing.JFrame {
         {
             System.out.println("client registered with name \""+ nameBox.getText()+"\"...");
             String name = nameBox.getText();
-            clients.put(name, Server.soc);
-            status.put(name, Status.FREE);
-            try{
+            addClient(name);
+            grantConnection(name);
+            displayOnlineClients(name);
+        }
+    }//GEN-LAST:event_submitBtnActionPerformed
+    
+    
+    private void grantConnection(String name)    {
+        try{
                 DataOutputStream o = new DataOutputStream(clients.get(name).getOutputStream());
                 System.out.println("Granted connection");
                 o.writeUTF(Commands.GRANTED);
             }catch(Exception ex){   
-            }
-            displayOnlineClientsTo(name);
         }
-    }//GEN-LAST:event_submitBtnActionPerformed
+    }
     
-    //This method Displays online clients to requested Client
-    public void displayOnlineClientsTo(String name)
-    {
+    
+    private void addClient(String name)    {
+        clients.put(name, Server.soc);
+        status.put(name, Status.FREE);
+    }
+
+    
+    private void reFormatFrame()    {
         contentPanel.setVisible(false);
         contentPanel.remove(submitBtn);
         contentPanel.remove(nameBox);
         noteLabel.setText("Click to Start Chat");
         menuLabel.setText("Online Clients");
         menuLabel.setIcon(new ImageIcon("images/online.png"));
+    }
+    
+    
+    //This method Displays online clients to requested Client
+    public void displayOnlineClients(String name)    {
+        reFormatFrame();
         Enumeration e = clients.keys();
-        if(Server.clientsCount>1)
+        
+        if(clients.size()>1)// Doesn't show online clients to 1st arriving client
         {            
             while(e.hasMoreElements())
             {
@@ -259,16 +275,17 @@ public class ClientHandler extends javax.swing.JFrame {
             }
         }
     }
+            
     
     //This method will set status of Chatting Clients to Busy
-    public void setBusyStatus(String client1,String client2)
-    {
+    public void setBusyStatus(String client1,String client2)    {
         status.put(client1, Status.BUSY);
         status.put(client2, Status.BUSY);
     }
+    
+    
     //This method tells client for recieved request and get his response
-    public Boolean getClientResponse(String sender,String reciever)
-    {
+    public Boolean getClientResponse(String sender,String reciever)    {
         try{
             //To send Message to requested client
             DataOutputStream rcvOut = new DataOutputStream(clients.get(reciever).getOutputStream());
@@ -296,8 +313,9 @@ public class ClientHandler extends javax.swing.JFrame {
         }
         return false;
     }
-    public void notifyClients(String client1,String client2)
-    {
+    
+    
+    private void notifyClients(String client1,String client2)    {
         try {
             //Notifying Client2 that client1 is the sender
             Server.out = new DataOutputStream(clients.get(client2).getOutputStream());
@@ -316,8 +334,9 @@ public class ClientHandler extends javax.swing.JFrame {
             ex.printStackTrace();
         }
     }
-    public void startChatThread(String client1,String client2)
-    {
+    
+    
+    private void startChatThread(String client1,String client2)    {
         //Client1 is sending and Client2 is recieving
         Thread t1 = new Thread(new ChatHead(client1,client2));
         

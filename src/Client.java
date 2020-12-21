@@ -26,7 +26,7 @@ public class Client extends javax.swing.JFrame {
     int xMouse;
     int yMouse;
     String recipient;
-    Boolean isConnected;
+    
     public Client(String addr,int port){
         try{
             initComponents();
@@ -40,14 +40,15 @@ public class Client extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
+    
     public void connect()
     {
         open();
         requestConnection();
-        isConnected = true;
         setVisible(true);
         recieveMessages();
     }
+    
     public void open()
     {
         try {
@@ -130,7 +131,7 @@ public class Client extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(15, 15, 15)
                 .addComponent(recipientName)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 184, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 216, Short.MAX_VALUE)
                 .addComponent(endChatBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(closeChatBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -139,13 +140,13 @@ public class Client extends javax.swing.JFrame {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(16, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(closeChatBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(endChatBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(recipientName)))
-                .addGap(12, 12, 12))
+                .addGap(11, 11, 11))
         );
 
         jPanel2.setBackground(new java.awt.Color(102, 102, 102));
@@ -202,7 +203,7 @@ public class Client extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 482, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 503, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -238,16 +239,20 @@ public class Client extends javax.swing.JFrame {
             ex.printStackTrace();
         }
     }
-    public void messageRecieved(String line)
+    
+    private void messageRecieved(String line)
     {
         messagePane.setText(messagePane.getText()+line+'\n');
     }
+    
     private void closeChatBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeChatBtnActionPerformed
-        isConnected = false;
+        
         this.setVisible(false);
-        this.exitServer();
-        this.close();       
+        this.exitServer();  
+        close();
+        System.exit(0);
     }//GEN-LAST:event_closeChatBtnActionPerformed
+    
     private void exitServer()
     {
         try {
@@ -258,6 +263,7 @@ public class Client extends javax.swing.JFrame {
             ex.printStackTrace();
         }
     }
+    
     private void formMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseDragged
         // TODO add your handling code here:
         int x = evt.getXOnScreen();
@@ -274,39 +280,44 @@ public class Client extends javax.swing.JFrame {
     private void endChatBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_endChatBtnActionPerformed
         try {
              System.out.println("disconnecting...");
-             //Notifies Server that client is exiting
+             
+             //Notifies Server that client is ending chat
              out.writeUTF(Commands.END_CHAT);
         } catch (Exception ex) {
             //ex.printStackTrace();
         }
     }//GEN-LAST:event_endChatBtnActionPerformed
+    
     public void recieveMessages()
-    {
-        String line = "";
-        
-        //Recieves Messages Until Client exits
-        while(this.isConnected)
-        {
-            try {
+    {        
+       String line = "";
+        try {
+            while(!line.equalsIgnoreCase(Commands.DISCONNECT))
+            {
+                System.out.println(line);
                 line = in.readUTF();
-            } catch (Exception ex) {
-                ex.printStackTrace();
+
+                //When Client is connected to another client
+                if(line.equalsIgnoreCase(Commands.CONNECTED))
+                {
+                    //next line will be sender's info
+                    System.out.print("Starting chat with ");
+                    setSenderInfo();
+                }
+                else
+                {
+                    if(line.length()!=0)
+                        messageRecieved(line);
+                }
+
             }
-            //When Client is connected to another client
-            if(line.equalsIgnoreCase(Commands.CONNECTED))
-            {
-                System.out.print("Starting chat with ");
-                setSenderInfo();
-            }
-            else
-            {
-                if(line.length()!=0)
-                    messageRecieved(line);
-            }
-            
+        } catch (Exception ex) {
         }
-    }
-    public void setSenderInfo() {
+        this.close();
+   }
+    
+    
+    private void setSenderInfo() {
         String sender ="";
         try {
             sender = in.readUTF();

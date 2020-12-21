@@ -19,8 +19,7 @@ public class Server {
     static Socket soc;
     static DataInputStream in;
     static DataOutputStream out;
-    static int clientsCount;
-       
+    int clientsCount;
     //Constructor
     public Server(int port) {
         try {
@@ -37,13 +36,14 @@ public class Server {
         {
             try {
                 Server.soc = Server.ss.accept();
-                clientsCount++;
+                clientsCount = ClientHandler.clients.size() + 1;
                 Server.in = new DataInputStream(soc.getInputStream());
                 Server.out = new DataOutputStream(soc.getOutputStream());
                 System.out.println(clientsCount + " client(s) connected ...");
                 
                 //Handles the Client
                 new ClientHandler().setVisible(true);
+                
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
