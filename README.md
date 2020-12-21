@@ -9,8 +9,8 @@
 ## Description
 
 * It uses a simple server that creates a Thread as a ChatHead between clients. 
-* It uses some commands for inter-server-client communication to perform and action.
-* When client connects to server and ask for connection, Server ask for the name of client and registers it in local data structure (Dictionary) along with a socket connected to the client. 
+* It uses some commands for inter-server-client communication to perform some actions.
+* When client connects to server and ask for connection, Server asks for name of the client and registers it in local data structure (Dictionary) along with a socket, on which serverr is connected to the client. 
 * In this Dictionary Client's name act as a Key and its Socket is the value. 
 * When 1st client arrives and No one is online, Server sends a message to client that "No one is online wait...". 
 * When 2nd client arrives, Server registers it and displays "Online Clients" page to him/her. When client select one of the online clients. Server starts a ChatHead as a thread. Server recieves Messages from a client and sends it to another client.
