@@ -56,7 +56,5 @@
 * Server side behaviour during all this processing.
 
 ![GitHub editor](tutorial/9.png)
-## Bugs Yet to be fixed
 
-* Handle, Removing clients from server data structure.
 * Handle, Thread-safe variable. i.e. Critical Section Management between Threads.
