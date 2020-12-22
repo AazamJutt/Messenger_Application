@@ -57,4 +57,5 @@
 
 ![GitHub editor](tutorial/9.png)
 
+## Bugs
 * Handle, Thread-safe variable. i.e. Critical Section Management between Threads.
